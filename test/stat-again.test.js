@@ -3,11 +3,77 @@ import path from 'path';
 import chai, {expect} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
-import {Stator} from '../src/stat-again';
+import statAgain, {Stator,
+  expectEventuallyFound, expectEventuallyDeleted} from '../src/stat-again';
 
 chai.use(chaiAsPromised);
 
 describe('Testing module stat-again', function() {
+
+  it(`'statAgain' tries several times to stat a file'`, function() {
+    const date = new Date();
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+
+    setTimeout(fs.mkdir.bind(fs, name), 200);
+
+    return expect(statAgain(name, 50, 10)).to.eventually.be.instanceof(Stats);
+  });
+
+  it(`'statAgain' tries so many times before failing`, function() {
+    const date = new Date();
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+
+    setTimeout(fs.mkdir.bind(fs, name), 1000);
+
+    return statAgain(name, 30, 20).catch(err => {
+      expect(err).to.match(
+        new RegExp(`ENOENT: no such file or directory, stat '${name}'`));
+    });
+  });
+
+  it(`'expectEventuallyFound' returns true on success`, function() {
+    const date = new Date();
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+
+    setTimeout(fs.mkdir.bind(fs, name), 200);
+
+    return expect(expectEventuallyFound(name, 50, 10))
+      .to.be.eventually.true;
+  });
+
+  it(`'expectEventuallyFound' returns false after too long`,
+    function() {
+    const date = new Date();
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+
+    setTimeout(fs.mkdir.bind(fs, name), 1000);
+
+    return expect(expectEventuallyFound(name, 30, 20))
+      .to.be.eventually.false;
+  });
+
+  it(`'expectEventuallyDeleted' returns true on success`, function() {
+    const date = new Date();
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+
+    fs.mkdir(name);
+    setTimeout(fs.rmdir.bind(fs, name), 200);
+
+    return expect(expectEventuallyDeleted(name, 50, 10))
+      .to.be.eventually.true;
+  });
+
+  it(`'expectEventuallyDeleted' returns false after too long`,
+    function() {
+    const date = new Date();
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+
+    fs.mkdir(name);
+    setTimeout(fs.rmdir.bind(fs, name), 1000);
+
+    return expect(expectEventuallyDeleted(name, 30, 20))
+      .to.be.eventually.false;
+  });
 
   it('A Stator instance can stat files', function() {
     const stator = new Stator('gulpfile.babel.js');

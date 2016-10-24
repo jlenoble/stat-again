@@ -7,6 +7,10 @@ exports.Stator = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+exports.default = statAgain;
+exports.expectEventuallyFound = expectEventuallyFound;
+exports.expectEventuallyDeleted = expectEventuallyDeleted;
+
 var _fs = require('fs');
 
 var _fs2 = _interopRequireDefault(_fs);
@@ -129,3 +133,29 @@ var Stator = exports.Stator = function () {
 
   return Stator;
 }();
+
+;
+
+function statAgain(pathname) {
+  var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 100;
+  var times = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+
+  var stator = new Stator(pathname);
+  return stator.insist(delay, times);
+};
+
+function expectEventuallyFound(pathname) {
+  var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 100;
+  var times = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+  var stator = new Stator(pathname);
+  return stator.expectEventuallyFound(delay, times);
+};
+
+function expectEventuallyDeleted(pathname) {
+  var delay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 100;
+  var times = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+  var stator = new Stator(pathname);
+  return stator.expectEventuallyDeleted(delay, times);
+};

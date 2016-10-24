@@ -89,4 +89,19 @@ export class Stator {
     });
   }
 
-}
+};
+
+export default function statAgain(pathname, delay = 100, times = 10) {
+  const stator = new Stator(pathname);
+  return stator.insist(delay, times);
+};
+
+export function expectEventuallyFound(pathname, delay = 100, times = 0) {
+  const stator = new Stator(pathname);
+  return stator.expectEventuallyFound(delay, times);
+};
+
+export function expectEventuallyDeleted(pathname, delay = 100, times = 0) {
+  const stator = new Stator(pathname);
+  return stator.expectEventuallyDeleted(delay, times);
+};
