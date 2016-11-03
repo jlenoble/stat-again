@@ -84,19 +84,21 @@ var Stator = exports.Stator = function () {
   }, {
     key: 'expectEventuallyFound',
     value: function expectEventuallyFound() {
+      var _this3 = this;
+
       var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
       var times = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
       return this.insist(delay, times).then(function (res) {
         return res instanceof _fs.Stats;
       }, function (err) {
-        return false;
+        throw new Error('File \'' + _this3.pathname + '\'' + ' could not be found within the imparted time frame\'');
       });
     }
   }, {
     key: 'expectEventuallyDeleted',
     value: function expectEventuallyDeleted() {
-      var _this3 = this;
+      var _this4 = this;
 
       var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 100;
       var times = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -112,15 +114,15 @@ var Stator = exports.Stator = function () {
             function tryAgain() {
               this.expectEventuallyDeleted(delay, times - 1).then(resolve, reject);
             }
-            setTimeout(tryAgain.bind(_this3), delay);
+            setTimeout(tryAgain.bind(_this4), delay);
           });
         } else {
           // Abort, too many attempts
-          return Promise.resolve(false);
+          throw new Error('File \'' + _this4.pathname + '\'' + ' could not be deleted within the imparted time frame\'');
         }
       }, function (err) {
         var res = err.message.match(/ENOENT: no such file or directory, stat '(.*)'/);
-        if (res && res[1] === _this3.pathname) {
+        if (res && res[1] === _this4.pathname) {
           // Happy error, this.pathname does not exist
           return true;
         } else {

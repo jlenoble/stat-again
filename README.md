@@ -15,14 +15,10 @@ const delayInMs = 30;
 const numberOfTries = 10;
 
 expectEventuallyFound(pathname, delayInMs, numberOfTries)
-  .then(found => {
-    if (found) {
-      // Do stuff with pathname file
-    } else {
-      // Acknowledge pathname file was not found within a reasonable time
-    }
+  .then(() => {
+    // File was found within a reasonable time
   }, err => {
-    // Handle unexpected error
+    // Handle error
   });
 ```
 
@@ -36,14 +32,10 @@ const delayInMs = 30;
 const numberOfTries = 10;
 
 expectEventuallyDeleted(pathname, delayInMs, numberOfTries)
-  .then(deleted => {
-    if (deleted) {
-      // Rejoice pathname file was deleted as expected and proceed
-    } else {
-      // Acknowledge failure to delete pathname file within a reasonable time
-    }
+  .then(() => {
+    // File was deleted within a reasonable time
   }, err => {
-    // Handle unexpected error
+    // Handle error
   });
 ```
 
@@ -62,7 +54,7 @@ statAgain(pathname, delayInMs, numberOfTries)
   .then(stats => {
     // Do something with stats
   }, err => {
-    // Handle unexpected error
+    // Handle error
   });
 ```
 

@@ -41,15 +41,18 @@ describe('Testing module stat-again', function() {
       .to.be.eventually.true;
   });
 
-  it(`'expectEventuallyFound' returns false after too long`,
+  it(`'expectEventuallyFound' throws an error after too long`,
     function() {
     const date = new Date();
     const name = path.join('/tmp', 'test_start-again_' + date.getTime());
 
     setTimeout(fs.mkdir.bind(fs, name), 1000);
 
-    return expect(expectEventuallyFound(name, 30, 20))
-      .to.be.eventually.false;
+    return expectEventuallyFound(name, 30, 20)
+      .catch(err => {
+        expect(err).to.match(
+          /Error: File '.*' could not be found within the imparted time frame'/);
+      });
   });
 
   it(`'expectEventuallyDeleted' returns true on success`, function() {
@@ -63,7 +66,7 @@ describe('Testing module stat-again', function() {
       .to.be.eventually.true;
   });
 
-  it(`'expectEventuallyDeleted' returns false after too long`,
+  it(`'expectEventuallyDeleted' throws on error after too long`,
     function() {
     const date = new Date();
     const name = path.join('/tmp', 'test_start-again_' + date.getTime());
@@ -71,8 +74,11 @@ describe('Testing module stat-again', function() {
     fs.mkdir(name);
     setTimeout(fs.rmdir.bind(fs, name), 1000);
 
-    return expect(expectEventuallyDeleted(name, 30, 20))
-      .to.be.eventually.false;
+    return expectEventuallyFound(name, 30, 20)
+      .catch(err => {
+        expect(err).to.match(
+          /`Error: File '.*' could not be deleted within the imparted time frame'`/);
+      });
   });
 
   it('A Stator instance can stat files', function() {
@@ -114,7 +120,7 @@ describe('Testing module stat-again', function() {
       .to.be.eventually.true;
   });
 
-  it(`The 'expectEventuallyFound' method returns false after too long`,
+  it(`The 'expectEventuallyFound' method throws an error after too long`,
     function() {
     const date = new Date();
     const name = path.join('/tmp', 'test_start-again_' + date.getTime());
@@ -122,8 +128,11 @@ describe('Testing module stat-again', function() {
     const stator = new Stator(name);
     setTimeout(fs.mkdir.bind(fs, name), 1000);
 
-    return expect(stator.expectEventuallyFound(30, 20))
-      .to.be.eventually.false;
+    return stator.expectEventuallyFound(30, 20)
+      .catch(err => {
+        expect(err).to.match(
+          /Error: File '.*' could not be found within the imparted time frame'/);
+      });
   });
 
   it(`A stator instance has a method 'expectEventuallyDeleted'`, function() {
@@ -138,7 +147,7 @@ describe('Testing module stat-again', function() {
       .to.be.eventually.true;
   });
 
-  it(`The 'expectEventuallyDeleted' method returns false after too long`,
+  it(`The 'expectEventuallyDeleted' method throws an error after too long`,
     function() {
     const date = new Date();
     const name = path.join('/tmp', 'test_start-again_' + date.getTime());
@@ -147,8 +156,11 @@ describe('Testing module stat-again', function() {
     fs.mkdir(name);
     setTimeout(fs.rmdir.bind(fs, name), 1000);
 
-    return expect(stator.expectEventuallyDeleted(30, 20))
-      .to.be.eventually.false;
+    return stator.expectEventuallyDeleted(30, 20)
+      .catch(err => {
+        expect(err).to.match(
+          /Error: File '.*' could not be deleted within the imparted time frame'/);
+      });
   });
 
 });

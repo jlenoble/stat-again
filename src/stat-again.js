@@ -54,7 +54,10 @@ export class Stator {
   expectEventuallyFound(delay = 100, times = 0) {
     return this.insist(delay, times).then(
       res => res instanceof Stats,
-      err => false);
+      err => {
+        throw new Error(`File '${this.pathname}'` +
+          ` could not be found within the imparted time frame'`);
+      });
   }
 
   expectEventuallyDeleted(delay = 100, times = 0) {
@@ -74,7 +77,8 @@ export class Stator {
         });
       } else {
         // Abort, too many attempts
-        return Promise.resolve(false);
+        throw new Error(`File '${this.pathname}'` +
+          ` could not be deleted within the imparted time frame'`);
       }
     }, err => {
       let res = err.message
