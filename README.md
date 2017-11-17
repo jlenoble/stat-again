@@ -58,6 +58,26 @@ statAgain(pathname, delayInMs, numberOfTries)
   });
 ```
 
+### Comparing two file last modifications
+
+```js
+import {isNewerThan} from 'stat-again';
+
+const pathname1 = 'dir/file1.js';
+const pathname2 = 'dir/file2.js';
+
+isNewerThan(pathname1, pathname2)
+  .then(bool => {
+    if (bool) {
+      // file1 is newer than file2...
+    } else {
+      // ...
+    }
+  }, err => {
+    // Handle error
+  });
+```
+
 ## License
 
 stat-again is [MIT licensed](./LICENSE).
