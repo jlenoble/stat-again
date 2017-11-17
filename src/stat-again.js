@@ -23,6 +23,14 @@ export class Stator {
     });
   }
 
+  isNewerThan (stator) {
+    return this.stat().then(stats1 => {
+      return stator.stat().then(stats2 => {
+        return stats1.mtime > stats2.mtime;
+      });
+    });
+  }
+
   insist (delay = 100, times = 10) {
     if (!Number.isInteger(times)) {
       throw TypeError('times is not an integer: ', times);
@@ -109,3 +117,9 @@ export function expectEventuallyDeleted (pathname, delay = 100, times = 0) {
   const stator = new Stator(pathname);
   return stator.expectEventuallyDeleted(delay, times);
 };
+
+export function isNewerThan (pathname1, pathname2) {
+  const stator1 = new Stator(pathname1);
+  const stator2 = new Stator(pathname2);
+  return stator1.isNewerThan(stator2);
+}
