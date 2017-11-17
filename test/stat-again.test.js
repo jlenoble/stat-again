@@ -9,20 +9,30 @@ import statAgain, {Stator,
 chai.use(chaiAsPromised);
 
 describe('Testing module stat-again', function () {
+  const cb = err => {
+    if (err) {
+      throw err;
+    }
+  };
+
+  let counter = 0;
+
   it(`'statAgain' tries several times to stat a file'`, function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
-    setTimeout(fs.mkdir.bind(fs, name), 200);
+    setTimeout(fs.mkdir.bind(fs, name, cb), 200);
 
     return expect(statAgain(name, 50, 10)).to.eventually.be.instanceof(Stats);
   });
 
   it(`'statAgain' tries so many times before failing`, function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
-    setTimeout(fs.mkdir.bind(fs, name), 1000);
+    setTimeout(fs.mkdir.bind(fs, name, cb), 1000);
 
     return statAgain(name, 30, 20).catch(err => {
       expect(err).to.match(
@@ -32,9 +42,10 @@ describe('Testing module stat-again', function () {
 
   it(`'expectEventuallyFound' returns true on success`, function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
-    setTimeout(fs.mkdir.bind(fs, name), 200);
+    setTimeout(fs.mkdir.bind(fs, name, cb), 200);
 
     return expect(expectEventuallyFound(name, 50, 10))
       .to.be.eventually.true;
@@ -42,9 +53,10 @@ describe('Testing module stat-again', function () {
 
   it(`'expectEventuallyFound' throws an error after too long`, function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
-    setTimeout(fs.mkdir.bind(fs, name), 1000);
+    setTimeout(fs.mkdir.bind(fs, name, cb), 1000);
 
     return expectEventuallyFound(name, 30, 20)
       .catch(err => {
@@ -55,10 +67,11 @@ describe('Testing module stat-again', function () {
 
   it(`'expectEventuallyDeleted' returns true on success`, function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
-    fs.mkdir(name);
-    setTimeout(fs.rmdir.bind(fs, name), 200);
+    fs.mkdir(name, cb);
+    setTimeout(fs.rmdir.bind(fs, name, cb), 200);
 
     return expect(expectEventuallyDeleted(name, 50, 10))
       .to.be.eventually.true;
@@ -66,10 +79,11 @@ describe('Testing module stat-again', function () {
 
   it(`'expectEventuallyDeleted' throws on error after too long`, function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
-    fs.mkdir(name);
-    setTimeout(fs.rmdir.bind(fs, name), 1000);
+    fs.mkdir(name, cb);
+    setTimeout(fs.rmdir.bind(fs, name, cb), 1000);
 
     return expectEventuallyFound(name, 30, 20)
       .catch(err => {
@@ -85,20 +99,22 @@ describe('Testing module stat-again', function () {
 
   it('A stator instance can try several times to stat a file', function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
     const stator = new Stator(name);
-    setTimeout(fs.mkdir.bind(fs, name), 200);
+    setTimeout(fs.mkdir.bind(fs, name, cb), 200);
 
     return expect(stator.insist(50, 10)).to.eventually.be.instanceof(Stats);
   });
 
   it('A stator instance will try so many times before failing', function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
     const stator = new Stator(name);
-    setTimeout(fs.mkdir.bind(fs, name), 1000);
+    setTimeout(fs.mkdir.bind(fs, name, cb), 1000);
 
     return stator.insist(30, 20).catch(err => {
       expect(err).to.match(
@@ -108,10 +124,11 @@ describe('Testing module stat-again', function () {
 
   it(`A stator instance has a method 'expectEventuallyFound'`, function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
     const stator = new Stator(name);
-    setTimeout(fs.mkdir.bind(fs, name), 200);
+    setTimeout(fs.mkdir.bind(fs, name, cb), 200);
 
     return expect(stator.expectEventuallyFound(50, 10))
       .to.be.eventually.true;
@@ -120,10 +137,11 @@ describe('Testing module stat-again', function () {
   it(`The 'expectEventuallyFound' method throws an error after too long`,
     function () {
       const date = new Date();
-      const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+      const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+         + '_' + (counter++));
 
       const stator = new Stator(name);
-      setTimeout(fs.mkdir.bind(fs, name), 1000);
+      setTimeout(fs.mkdir.bind(fs, name, cb), 1000);
 
       return stator.expectEventuallyFound(30, 20)
         .catch(err => {
@@ -134,11 +152,12 @@ describe('Testing module stat-again', function () {
 
   it(`A stator instance has a method 'expectEventuallyDeleted'`, function () {
     const date = new Date();
-    const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+    const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+       + '_' + (counter++));
 
     const stator = new Stator(name);
-    fs.mkdir(name);
-    setTimeout(fs.rmdir.bind(fs, name), 200);
+    fs.mkdir(name, cb);
+    setTimeout(fs.rmdir.bind(fs, name, cb), 200);
 
     return expect(stator.expectEventuallyDeleted(50, 10))
       .to.be.eventually.true;
@@ -147,11 +166,12 @@ describe('Testing module stat-again', function () {
   it(`The 'expectEventuallyDeleted' method throws an error after too long`,
     function () {
       const date = new Date();
-      const name = path.join('/tmp', 'test_start-again_' + date.getTime());
+      const name = path.join('/tmp', 'test_start-again_' + date.getTime()
+         + '_' + (counter++));
 
       const stator = new Stator(name);
-      fs.mkdir(name);
-      setTimeout(fs.rmdir.bind(fs, name), 1000);
+      fs.mkdir(name, cb);
+      setTimeout(fs.rmdir.bind(fs, name, cb), 1000);
 
       return stator.expectEventuallyDeleted(30, 20)
         .catch(err => {
