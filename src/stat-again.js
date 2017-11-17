@@ -1,16 +1,17 @@
 import fs, {Stats} from 'fs';
 
 export class Stator {
-
-  constructor(pathname) {
+  constructor (pathname) {
     const _pathname = pathname;
 
     Object.defineProperty(this, 'pathname', {
-      get() {return _pathname;}
+      get () {
+        return _pathname;
+      },
     });
   }
 
-  stat() {
+  stat () {
     return new Promise((resolve, reject) => {
       fs.stat(this.pathname, (err, stats) => {
         if (err) {
@@ -22,7 +23,7 @@ export class Stator {
     });
   }
 
-  insist(delay = 100, times = 10) {
+  insist (delay = 100, times = 10) {
     if (!Number.isInteger(times)) {
       throw TypeError('times is not an integer: ', times);
     }
@@ -35,7 +36,7 @@ export class Stator {
         if (times > 0) {
           // Try again
           return new Promise(((resolve, reject) => {
-            function tryAgain() {
+            function tryAgain () {
               resolve(this.insist(delay, times - 1));
             }
             setTimeout(tryAgain.bind(this), delay);
@@ -51,7 +52,7 @@ export class Stator {
     });
   }
 
-  expectEventuallyFound(delay = 100, times = 0) {
+  expectEventuallyFound (delay = 100, times = 0) {
     return this.insist(delay, times).then(
       res => res instanceof Stats,
       err => {
@@ -60,7 +61,7 @@ export class Stator {
       });
   }
 
-  expectEventuallyDeleted(delay = 100, times = 0) {
+  expectEventuallyDeleted (delay = 100, times = 0) {
     if (!Number.isInteger(times)) {
       throw TypeError('times is not an integer: ', times);
     }
@@ -69,7 +70,7 @@ export class Stator {
       if (times > 0) {
         // Unhappy res, try again
         return new Promise((resolve, reject) => {
-          function tryAgain() {
+          function tryAgain () {
             this.expectEventuallyDeleted(delay, times - 1)
               .then(resolve, reject);
           }
@@ -92,20 +93,19 @@ export class Stator {
       }
     });
   }
-
 };
 
-export default function statAgain(pathname, delay = 100, times = 10) {
+export default function statAgain (pathname, delay = 100, times = 10) {
   const stator = new Stator(pathname);
   return stator.insist(delay, times);
 };
 
-export function expectEventuallyFound(pathname, delay = 100, times = 0) {
+export function expectEventuallyFound (pathname, delay = 100, times = 0) {
   const stator = new Stator(pathname);
   return stator.expectEventuallyFound(delay, times);
 };
 
-export function expectEventuallyDeleted(pathname, delay = 100, times = 0) {
+export function expectEventuallyDeleted (pathname, delay = 100, times = 0) {
   const stator = new Stator(pathname);
   return stator.expectEventuallyDeleted(delay, times);
 };
