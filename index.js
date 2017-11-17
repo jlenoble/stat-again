@@ -10,6 +10,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 exports.default = statAgain;
 exports.expectEventuallyFound = expectEventuallyFound;
 exports.expectEventuallyDeleted = expectEventuallyDeleted;
+exports.isNewerThan = isNewerThan;
 
 var _fs = require('fs');
 
@@ -44,6 +45,15 @@ var Stator = exports.Stator = function () {
             return;
           }
           resolve(stats);
+        });
+      });
+    }
+  }, {
+    key: 'isNewerThan',
+    value: function isNewerThan(stator) {
+      return this.stat().then(function (stats1) {
+        return stator.stat().then(function (stats2) {
+          return stats1.mtime > stats2.mtime;
         });
       });
     }
@@ -161,3 +171,9 @@ function expectEventuallyDeleted(pathname) {
   var stator = new Stator(pathname);
   return stator.expectEventuallyDeleted(delay, times);
 };
+
+function isNewerThan(pathname1, pathname2) {
+  var stator1 = new Stator(pathname1);
+  var stator2 = new Stator(pathname2);
+  return stator1.isNewerThan(stator2);
+}
