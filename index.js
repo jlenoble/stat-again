@@ -20,6 +20,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var rethrow = function rethrow(err) {
+  throw err;
+};
+
 var Stator = exports.Stator = function () {
   function Stator(pathname) {
     _classCallCheck(this, Stator);
@@ -54,8 +58,8 @@ var Stator = exports.Stator = function () {
       return this.stat().then(function (stats1) {
         return stator.stat().then(function (stats2) {
           return stats1.mtime > stats2.mtime;
-        });
-      });
+        }, rethrow);
+      }, rethrow);
     }
   }, {
     key: 'insist',
@@ -66,7 +70,7 @@ var Stator = exports.Stator = function () {
       var times = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
 
       if (!Number.isInteger(times)) {
-        throw TypeError('times is not an integer: ', times);
+        return Promise.reject(new TypeError('times is not an integer: ' + times));
       }
 
       return this.stat().catch(function (err) {
@@ -77,7 +81,7 @@ var Stator = exports.Stator = function () {
             // Try again
             return new Promise(function (resolve, reject) {
               function tryAgain() {
-                resolve(this.insist(delay, times - 1));
+                this.insist(delay, times - 1).then(resolve, reject);
               }
               setTimeout(tryAgain.bind(_this2), delay);
             });
@@ -114,7 +118,7 @@ var Stator = exports.Stator = function () {
       var times = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
       if (!Number.isInteger(times)) {
-        throw TypeError('times is not an integer: ', times);
+        return Promise.reject(new TypeError('times is not an integer: ' + times));
       }
 
       return this.stat().then(function (res) {
