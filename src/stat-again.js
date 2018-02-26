@@ -1,5 +1,9 @@
 import fs, {Stats} from 'fs';
 
+const rethrow = err => {
+  throw err;
+};
+
 export class Stator {
   constructor (pathname) {
     const _pathname = pathname;
@@ -24,16 +28,17 @@ export class Stator {
   }
 
   isNewerThan (stator) {
-    return this.stat().then(stats1 => {
-      return stator.stat().then(stats2 => {
-        return stats1.mtime > stats2.mtime;
-      });
-    });
+    return this.stat()
+      .then(stats1 => {
+        return stator.stat().then(stats2 => {
+          return stats1.mtime > stats2.mtime;
+        }, rethrow);
+      }, rethrow);
   }
 
   insist (delay = 100, times = 10) {
     if (!Number.isInteger(times)) {
-      throw TypeError('times is not an integer: ', times);
+      return Promise.reject(new TypeError('times is not an integer: ' + times));
     }
 
     return this.stat().catch(err => {
@@ -45,7 +50,7 @@ export class Stator {
           // Try again
           return new Promise(((resolve, reject) => {
             function tryAgain () {
-              resolve(this.insist(delay, times - 1));
+              this.insist(delay, times - 1).then(resolve, reject);
             }
             setTimeout(tryAgain.bind(this), delay);
           }));
@@ -71,7 +76,7 @@ export class Stator {
 
   expectEventuallyDeleted (delay = 100, times = 0) {
     if (!Number.isInteger(times)) {
-      throw TypeError('times is not an integer: ', times);
+      return Promise.reject(new TypeError('times is not an integer: ' + times));
     }
 
     return this.stat().then(res => {
